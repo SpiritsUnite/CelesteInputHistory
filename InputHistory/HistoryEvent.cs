@@ -44,36 +44,36 @@ namespace Celeste.Mod.InputHistory
             }
         }
 
-        public float Render(float ly)
+        public float Render(float y)
         {
             var scale = 0.5f;
             var fontSize = ActiveFont.LineHeight * scale;
             var x = 10f;
 
             var dir = Input.GuiDirection(new Vector2(MoveX, MoveY));
-            dir?.Draw(new Vector2(x, ly), Vector2.Zero, Color.White, fontSize / dir.Height);
+            dir?.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / dir.Height);
             var rightDir = Input.GuiDirection(new Vector2(1, 0));
             x += rightDir.Width * fontSize / rightDir.Height;
 
             var jump1 = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.J);
-            if (Jump) jump1.Draw(new Vector2(x, ly), Vector2.Zero, Color.White, fontSize / jump1.Height);
+            if (Jump) jump1.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / jump1.Height);
             x += jump1.Width * fontSize / jump1.Height;
 
             var dash = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.X);
-            if (Dash) dash.Draw(new Vector2(x, ly), Vector2.Zero, Color.White, fontSize / dash.Height);
+            if (Dash) dash.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / dash.Height);
             x += dash.Width * fontSize / dash.Height;
 
             var grab = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.G);
-            if (Grab) grab.Draw(new Vector2(x, ly), Vector2.Zero, Color.White, fontSize / grab.Height);
+            if (Grab) grab.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / grab.Height);
             x += grab.Width * fontSize / grab.Height;
 
             ActiveFont.DrawOutline(Frames.ToString(),
-                    position: new Vector2(x, ly),
+                    position: new Vector2(x, y),
                     justify: new Vector2(0f, 0f),
                     scale: Vector2.One * scale,
                     color: Color.White, stroke: 2f,
                     strokeColor: Color.Black);
-            return ly + fontSize;
+            return y + fontSize;
         }
 
         public bool Equals(HistoryEvent other)

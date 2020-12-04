@@ -21,10 +21,10 @@ namespace Celeste.Mod.InputHistory
         {
             if (!InputHistoryModule.Settings.Enabled) return;
 
-            var ly = 120f;
+            var y = 120f;
             foreach (var e in InputHistoryModule.Events.Reverse().Take(InputHistoryModule.Settings.MaxInputsShown))
             {
-                ly = e.Render(ly);
+                y = e.Render(y);
             }
         }
     }
