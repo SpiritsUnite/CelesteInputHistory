@@ -4,7 +4,7 @@
 
 This mod displays a history of inputs on the left hand side along with how long
 each was pressed for (in frames). It currently uses TAS notation to display the
-buttons (J = jump, X = dash, G = grab).
+buttons (J = jump, X = dash, Z = crouch dash, G = grab).
 
 ## TODO
 
