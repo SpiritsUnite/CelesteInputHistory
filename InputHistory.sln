@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InputHistory", "InputHistory\InputHistory.csproj", "{E435375D-00FE-43F7-823C-84F61B36F484}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CA87F110-248C-4AD2-98F7-354FB2FE4D30}"
+	ProjectSection(SolutionItems) = preProject
+		everest.yaml = everest.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
