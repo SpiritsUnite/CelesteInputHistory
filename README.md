@@ -14,8 +14,6 @@ These are things I might want to add in.
 move it to the right side).
 - Make the buttons shown configurable. I didn't want to use the players key
 bindings because the keys aren't all uniform width (e.g. space is wider).
-- Handle two jump buttons.
-- Handle demodash.
-- Show if inputs have been buffered or had no affect.
+- Show if inputs have been buffered or had no effect.
 - Show screen transitions as a separate event (for help with transition boosts
 or bubsdrop).
