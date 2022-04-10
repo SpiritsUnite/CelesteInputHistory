@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,10 @@ namespace Celeste.Mod.InputHistory
         public static InputHistorySettings Settings => (InputHistorySettings)Instance._Settings;
         public static Queue<HistoryEvent> Events = new Queue<HistoryEvent>();
 
+        private StreamWriter replay_writer;
+        private const string ReplayFolder = "InputHistoryReplays";
+        private HistoryEvent lastReplayEvent;
+
         public InputHistoryModule()
         {
             Instance = this;
@@ -26,8 +31,49 @@ namespace Celeste.Mod.InputHistory
         public override void Load()
         {
             Everest.Events.Level.OnLoadLevel += AddList;
-            On.Monocle.Scene.Begin += ClearEvents;
+            Everest.Events.Level.OnEnter += Level_OnEnter;
+            Everest.Events.Level.OnExit += Level_OnExit;
             On.Monocle.Engine.Update += UpdateList;
+        }
+
+        private void Level_OnEnter(Session session, bool fromSaveData)
+        {
+            Events.Clear();
+            lastReplayEvent = null;
+
+            if (Settings.EnableReplays)
+            {
+                Directory.CreateDirectory(Path.Combine(Everest.PathGame, ReplayFolder));
+                replay_writer = new StreamWriter(Path.Combine(
+                    Everest.PathGame, ReplayFolder,
+                    DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss_") + session.MapData.Filename + ".tas"));
+                if (fromSaveData && session.RespawnPoint.HasValue)
+                    replay_writer.WriteLine(String.Format("console load {0} {1} {2} 0 0",
+                        session.Area.SID, session.RespawnPoint.Value.X, session.RespawnPoint.Value.Y));
+                else
+                    replay_writer.WriteLine("console load " + session.Area.SID);
+            }
+        }
+
+        private void Level_OnExit(Level level, LevelExit exit, LevelExit.Mode mode, Session session, HiresSnow snow)
+        {
+            WriteOutLastEvent();
+            Events.Clear();
+            lastReplayEvent = null;
+
+            if (mode == LevelExit.Mode.Restart || mode == LevelExit.Mode.GoldenBerryRestart)
+                return;
+
+            replay_writer?.Close();
+            replay_writer = null;
+        }
+
+        private void WriteOutLastEvent()
+        {
+            if (lastReplayEvent == null || replay_writer?.BaseStream == null || !Settings.EnableReplays)
+                return;
+
+            replay_writer?.WriteLine(lastReplayEvent.ToTasString());
         }
 
         private void EnqueueEvent(HistoryEvent e)
@@ -43,8 +89,8 @@ namespace Celeste.Mod.InputHistory
         {
             orig(self, gameTime);
 
-            HistoryEvent e = new HistoryEvent();
-            if (Events.Count == 0 || !Events.Last().Equals(e))
+            HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
+            if (Events.Count == 0 || !e.Extends(Events.Last(), tas: false))
             {
                 EnqueueEvent(e);
             }
@@ -53,24 +99,36 @@ namespace Celeste.Mod.InputHistory
                 Events.Last().Time += e.Time;
                 Events.Last().Frames++;
             }
-        }
 
-        private void ClearEvents(On.Monocle.Scene.orig_Begin orig, Scene self)
-        {
-            orig(self);
-            Events.Clear();
+            HistoryEvent tasEvent = HistoryEvent.CreateTasHistoryEvent();
+            if (tasEvent.Extends(lastReplayEvent, tas: true))
+            {
+                lastReplayEvent.Time += e.Time;
+                lastReplayEvent.Frames++;
+            }
+            else
+            {
+                WriteOutLastEvent();
+                lastReplayEvent = tasEvent;
+            }
         }
 
         public override void Unload()
         {
             Everest.Events.Level.OnLoadLevel -= AddList;
-            On.Monocle.Scene.Begin -= ClearEvents;
+            Everest.Events.Level.OnEnter -= Level_OnEnter;
+            Everest.Events.Level.OnExit -= Level_OnExit;
             On.Monocle.Engine.Update -= UpdateList;
+            replay_writer?.Close();
+            replay_writer = null;
         }
 
         private void AddList(Level level, Player.IntroTypes playerIntro, bool isFromLoader)
         {
             level.Add(new InputHistoryListEntity());
+
+            replay_writer?.WriteLine("# " + level.Session.LevelData.Name);
+            replay_writer?.FlushAsync();
         }
     }
 }

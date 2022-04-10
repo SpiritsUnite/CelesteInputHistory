@@ -19,7 +19,7 @@ namespace Celeste.Mod.InputHistory
 
         public override void Render()
         {
-            if (!InputHistoryModule.Settings.Enabled) return;
+            if (!InputHistoryModule.Settings.Visible) return;
 
             var y = 120f;
             foreach (var e in InputHistoryModule.Events.Reverse().Take(InputHistoryModule.Settings.MaxInputsShown))
