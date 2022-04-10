@@ -14,6 +14,7 @@ namespace Celeste.Mod.InputHistory
         [SettingRange(0, MAX_POSSIBLE_INPUTS_SHOWN)]
         public int MaxInputsShown { get; set; } = 25;
 
+        [SettingSubText("Experimental!")]
         public bool EnableReplays { get; set; } = false;
     }
 }
