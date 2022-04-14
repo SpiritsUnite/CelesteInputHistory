@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="QueuedStreamWriter.cs" />
     <Compile Include="IntegerAxisInputEvent.cs" />
     <Compile Include="ButtonInputEvent.cs" />
     <Compile Include="InputHistoryModule.cs" />

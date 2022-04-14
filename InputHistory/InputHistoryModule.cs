@@ -19,7 +19,7 @@ namespace Celeste.Mod.InputHistory
         public static InputHistorySettings Settings => (InputHistorySettings)Instance._Settings;
         public static Queue<HistoryEvent> Events = new Queue<HistoryEvent>();
 
-        private StreamWriter replayWriter;
+        private QueuedStreamWriter replayWriter;
         private const string ReplayFolder = "InputHistoryReplays";
         private HistoryEvent lastReplayEvent;
 
@@ -44,14 +44,14 @@ namespace Celeste.Mod.InputHistory
             if (Settings.EnableReplays)
             {
                 Directory.CreateDirectory(Path.Combine(Everest.PathGame, ReplayFolder));
-                replayWriter = new StreamWriter(Path.Combine(
+                replayWriter = new QueuedStreamWriter(Path.Combine(
                     Everest.PathGame, ReplayFolder,
                     DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss_") + session.MapData.Filename + ".tas"));
                 if (fromSaveData && session.RespawnPoint.HasValue)
-                    replayWriter.WriteLine(String.Format("console load {0} {1} {2} 0 0",
+                    replayWriter.WriteLineQueued(String.Format("console load {0} {1} {2} 0 0",
                         session.Area.SID, session.RespawnPoint.Value.X, session.RespawnPoint.Value.Y));
                 else
-                    replayWriter.WriteLine("console load " + session.Area.SID);
+                    replayWriter.WriteLineQueued("console load " + session.Area.SID);
             }
         }
 
@@ -64,16 +64,16 @@ namespace Celeste.Mod.InputHistory
             if (mode == LevelExit.Mode.Restart || mode == LevelExit.Mode.GoldenBerryRestart)
                 return;
 
-            replayWriter?.Close();
+            replayWriter?.CloseQueued();
             replayWriter = null;
         }
 
         private void WriteOutLastEvent()
         {
-            if (lastReplayEvent == null || replayWriter?.BaseStream == null || !Settings.EnableReplays)
+            if (lastReplayEvent == null || replayWriter == null || !Settings.EnableReplays)
                 return;
 
-            replayWriter?.WriteLine(lastReplayEvent.ToTasString());
+            replayWriter?.WriteLineQueued(lastReplayEvent.ToTasString());
         }
 
         private void EnqueueEvent(HistoryEvent e)
@@ -119,7 +119,7 @@ namespace Celeste.Mod.InputHistory
             Everest.Events.Level.OnEnter -= Level_OnEnter;
             Everest.Events.Level.OnExit -= Level_OnExit;
             On.Monocle.Engine.Update -= UpdateList;
-            replayWriter?.Close();
+            replayWriter?.CloseQueued();
             replayWriter = null;
         }
 
@@ -127,8 +127,8 @@ namespace Celeste.Mod.InputHistory
         {
             level.Add(new InputHistoryListEntity());
 
-            replayWriter?.WriteLine("# " + level.Session.LevelData.Name);
-            replayWriter?.Flush();
+            replayWriter?.WriteLineQueued("# " + level.Session.LevelData.Name);
+            replayWriter?.FlushQueued();
         }
     }
 }
