@@ -44,6 +44,9 @@
       <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="YamlDotNet">
@@ -52,10 +55,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="QueuedStreamWriter.cs" />
+    <Compile Include="IntegerAxisInputEvent.cs" />
+    <Compile Include="ButtonInputEvent.cs" />
     <Compile Include="InputHistoryModule.cs" />
     <Compile Include="InputHistoryListEntity.cs" />
     <Compile Include="HistoryEvent.cs" />
     <Compile Include="InputHistorySettings.cs" />
+    <Compile Include="InputEvent.cs" />
+    <Compile Include="MultiButtonInputEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

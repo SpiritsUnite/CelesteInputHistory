@@ -7,62 +7,49 @@ using Celeste;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
+using MonoMod.Utils;
 
 namespace Celeste.Mod.InputHistory
 {
-    public class HistoryEvent : IEquatable<HistoryEvent>
+    public class HistoryEvent
     {
-        public static readonly HistoryEvent LEVEL_LOAD = new HistoryEvent(true);
         public float Time { get; set; }
         public long Frames { get; set; }
-        private int MoveX;
-        private int MoveY;
-        private int Jump;
-        private bool Dash;
-        private bool CrouchDash;
-        private bool Grab;
-        private bool LevelLoad;
 
-        private int CheckCount(VirtualButton button)
-        {
-            int ret = 0;
-            foreach (var node in button.Nodes)
-            {
-                if (node.Check) ret += 1;
-            }
-            foreach (var key in button.Binding.Keyboard)
-            {
-                if (MInput.Keyboard.Check(key)) ret += 1;
-            }
-            foreach (var padButton in button.Binding.Controller)
-            {
-                if (MInput.GamePads[button.GamepadIndex].Check(padButton, button.Threshold))
-                    ret += 1;
-            }
-            return ret;
-        }
+        private readonly IEnumerable<InputEvent> _events;
 
-        public HistoryEvent()
+        private HistoryEvent(IEnumerable<InputEvent> events)
         {
             Time = Engine.RawDeltaTime;
             Frames = 1;
-            MoveX = (int)Input.MoveX;
-            MoveY = (int)Input.MoveY;
-            Jump = CheckCount(Input.Jump);
-            Dash = Input.Dash;
-            CrouchDash = Input.CrouchDash;
-            Grab = Input.Grab;
-            LevelLoad = false;
+            _events = events;
         }
 
-        private HistoryEvent(bool levelLoad) : this()
+        public static HistoryEvent CreateDefaultHistoryEvent()
         {
-            if (levelLoad)
-            {
-                LevelLoad = levelLoad;
-                Frames = 0;
-                Time = 0;
-            }
+            return new HistoryEvent(DefaultEventList());
+        }
+
+        public static HistoryEvent CreateTasHistoryEvent()
+        {
+            var events = DefaultEventList();
+            events.Add(new ButtonInputEvent(Input.Pause, Microsoft.Xna.Framework.Input.Keys.S));
+            events.Add(new ButtonInputEvent(Input.QuickRestart, Microsoft.Xna.Framework.Input.Keys.R));
+            events.Add(new ButtonInputEvent(Input.MenuJournal, Microsoft.Xna.Framework.Input.Keys.N));
+            return new HistoryEvent(events);
+        }
+
+        private static List<InputEvent> DefaultEventList()
+        {
+            var events = new List<InputEvent>();
+            events.Add(new IntegerAxisInputEvent(Input.MoveX, Input.MoveY));
+            events.Add(new ButtonInputEvent(Input.Jump, Microsoft.Xna.Framework.Input.Keys.J));
+            events.Add(new MultiButtonInputEvent(new[] {
+                new ButtonInputEvent(Input.Dash, Microsoft.Xna.Framework.Input.Keys.X),
+                new ButtonInputEvent(Input.CrouchDash, Microsoft.Xna.Framework.Input.Keys.Z),
+            }));
+            events.Add(new ButtonInputEvent(Input.Grab, Microsoft.Xna.Framework.Input.Keys.G));
+            return events;
         }
 
         public float Render(float y)
@@ -71,39 +58,10 @@ namespace Celeste.Mod.InputHistory
             var fontSize = ActiveFont.LineHeight * scale;
             var x = 10f;
 
-            var dir = Input.GuiDirection(new Vector2(MoveX, MoveY));
-            dir?.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / dir.Height);
-            var rightDir = Input.GuiDirection(new Vector2(1, 0));
-            x += rightDir.Width * fontSize / rightDir.Height;
-
-            var jump = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.J);
-            for (int i = 0; i < Jump; i++)
+            foreach (var e in _events)
             {
-                float multiScale = 5f / (5 + Jump - 1);
-                var shift = new Vector2(jump.Width * fontSize / jump.Height * (i / (5f + Jump - 1)),
-                    fontSize * ((Jump - i - 1) / (5f + Jump - 1)));
-                jump.Draw(new Vector2(x, y) + shift, Vector2.Zero, Color.White, fontSize / jump.Height * multiScale);;
+                x = e.Render(x, y, fontSize);
             }
-            x += jump.Width * fontSize / jump.Height;
-
-            var dash = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.X);
-            var crouchDash = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.Z);
-            float dashScale = 1f;
-            float dashShift = 0f;
-            float crouchDashShift = 0f;
-            if (Dash && CrouchDash)
-            {
-                dashScale = 5 / 6f;
-                dashShift = fontSize / 6f;
-                crouchDashShift = crouchDash.Width * fontSize / crouchDash.Height / 6;
-            }
-            if (Dash) dash.Draw(new Vector2(x, y + dashShift), Vector2.Zero, Color.White, fontSize / dash.Height * dashScale);
-            if (CrouchDash) crouchDash.Draw(new Vector2(x + crouchDashShift, y), Vector2.Zero, Color.White, fontSize / dash.Height * dashScale);
-            x += dash.Width * fontSize / dash.Height;
-
-            var grab = Input.GuiKey(Microsoft.Xna.Framework.Input.Keys.G);
-            if (Grab) grab.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / grab.Height);
-            x += grab.Width * fontSize / grab.Height;
 
             ActiveFont.DrawOutline(Frames.ToString(),
                     position: new Vector2(x, y),
@@ -114,30 +72,23 @@ namespace Celeste.Mod.InputHistory
             return y + fontSize;
         }
 
-        public bool Equals(HistoryEvent other)
+        public bool Extends(HistoryEvent other, bool tas)
         {
-            return (
-                MoveX == other.MoveX &&
-                MoveY == other.MoveY &&
-                Jump == other.Jump &&
-                Dash == other.Dash &&
-                CrouchDash == other.CrouchDash &&
-                Grab == other.Grab &&
-                LevelLoad == other.LevelLoad);
+            if (other == null) return false;
+
+            if (_events.Count() != other._events.Count()) return false;
+            return _events.Zip(other._events, Tuple.Create)
+                .All((es) => es.Item1.Extends(es.Item2, tas));
         }
 
-        public override string ToString()
+        public string ToTasString()
         {
-            //string ret = TimeSpan.FromSeconds(Time).ToString("s\\.fff") + " ";
-            string ret = Frames.ToString() + " ";
-            if (MoveX == 1) ret += "Right ";
-            if (MoveX == -1) ret += "Left ";
-            if (MoveY == 1) ret += "Up ";
-            if (MoveY == -1) ret += "Down ";
-            if (Jump > 0) ret += "Jump " + Jump.ToString() + " ";
-            if (Dash) ret += "Dash ";
-            if (CrouchDash) ret += "Crouch Dash ";
-            if (LevelLoad) ret += "Level Load";
+            string ret = Frames.ToString();
+            foreach (var e in _events)
+            {
+                string s = e.ToTasString();
+                if (s != "") ret += "," + s;
+            }
             return ret;
         }
     }
