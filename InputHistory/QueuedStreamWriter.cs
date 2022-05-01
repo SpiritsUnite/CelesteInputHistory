@@ -15,19 +15,19 @@ namespace Celeste.Mod.InputHistory
     /// </summary>
     class QueuedStreamWriter : StreamWriter
     {
-        private Task currentTask;
+        private Task _currentTask;
         public QueuedStreamWriter(string path) : base(path) {}
 
         public void WriteLineQueued(string value)
         {
-            if (currentTask == null)
+            if (_currentTask == null)
             {
-                currentTask = base.WriteLineAsync(value);
+                _currentTask = base.WriteLineAsync(value);
                 return;
             }
 
-            var task = currentTask;
-            currentTask = Task.Run(async () =>
+            var task = _currentTask;
+            _currentTask = Task.Run(async () =>
             {
                 await task;
                 await base.WriteLineAsync(value);
@@ -36,14 +36,14 @@ namespace Celeste.Mod.InputHistory
 
         public void CloseQueued()
         {
-            if (currentTask == null)
+            if (_currentTask == null)
             {
                 base.Close();
                 return;
             }
 
-            var task = currentTask;
-            currentTask = Task.Run(async () =>
+            var task = _currentTask;
+            _currentTask = Task.Run(async () =>
             {
                 await task;
                 base.Close();
@@ -52,14 +52,14 @@ namespace Celeste.Mod.InputHistory
 
         public void FlushQueued()
         {
-            if (currentTask == null)
+            if (_currentTask == null)
             {
-                currentTask = base.FlushAsync();
+                _currentTask = base.FlushAsync();
                 return;
             }
 
-            var task = currentTask;
-            currentTask = Task.Run(async () =>
+            var task = _currentTask;
+            _currentTask = Task.Run(async () =>
             {
                 await task;
                 await base.FlushAsync();

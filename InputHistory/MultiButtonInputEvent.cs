@@ -9,19 +9,19 @@ namespace Celeste.Mod.InputHistory
 {
     public class MultiButtonInputEvent : InputEvent
     {
-        private IEnumerable<ButtonInputEvent> Events;
+        private IEnumerable<ButtonInputEvent> _events;
         public MultiButtonInputEvent(IEnumerable<ButtonInputEvent> events)
         {
-            Events = events;
+            _events = events;
         }
 
         public float Render(float x, float y, float fontSize)
         {
-            int total = Events.Sum(e => e.Check);
+            int total = _events.Sum(e => e.Check);
             float retx = x;
             float multiScale = 5f / (5 + total - 1);
             int ii = 0;
-            foreach (var e in Events)
+            foreach (var e in _events)
             {
                 var icon = Input.GuiKey(e.Key);
                 retx = Math.Max(retx, x + icon.Width * fontSize / icon.Height);
@@ -39,8 +39,8 @@ namespace Celeste.Mod.InputHistory
         {
             if (orig is MultiButtonInputEvent origEvent)
             {
-                if (Events.Count() != origEvent.Events.Count()) return false;
-                return Events.Zip(origEvent.Events, Tuple.Create)
+                if (_events.Count() != origEvent._events.Count()) return false;
+                return _events.Zip(origEvent._events, Tuple.Create)
                     .All((es) => es.Item1.Extends(es.Item2, tas));
             }
             return false;
@@ -49,7 +49,7 @@ namespace Celeste.Mod.InputHistory
         public string ToTasString()
         {
             var ret = "";
-            foreach (var e in Events)
+            foreach (var e in _events)
             {
                 var s = e.ToTasString();
                 if (s != "") ret += s + ",";

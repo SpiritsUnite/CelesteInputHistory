@@ -16,13 +16,13 @@ namespace Celeste.Mod.InputHistory
         public float Time { get; set; }
         public long Frames { get; set; }
 
-        private readonly IEnumerable<InputEvent> events_;
+        private readonly IEnumerable<InputEvent> _events;
 
         private HistoryEvent(IEnumerable<InputEvent> events)
         {
             Time = Engine.RawDeltaTime;
             Frames = 1;
-            events_ = events;
+            _events = events;
         }
 
         public static HistoryEvent CreateDefaultHistoryEvent()
@@ -58,7 +58,7 @@ namespace Celeste.Mod.InputHistory
             var fontSize = ActiveFont.LineHeight * scale;
             var x = 10f;
 
-            foreach (var e in events_)
+            foreach (var e in _events)
             {
                 x = e.Render(x, y, fontSize);
             }
@@ -76,15 +76,15 @@ namespace Celeste.Mod.InputHistory
         {
             if (other == null) return false;
 
-            if (events_.Count() != other.events_.Count()) return false;
-            return events_.Zip(other.events_, Tuple.Create)
+            if (_events.Count() != other._events.Count()) return false;
+            return _events.Zip(other._events, Tuple.Create)
                 .All((es) => es.Item1.Extends(es.Item2, tas));
         }
 
         public string ToTasString()
         {
             string ret = Frames.ToString();
-            foreach (var e in events_)
+            foreach (var e in _events)
             {
                 string s = e.ToTasString();
                 if (s != "") ret += "," + s;
