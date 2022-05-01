@@ -22,6 +22,7 @@ namespace Celeste.Mod.InputHistory
         private QueuedStreamWriter replayWriter;
         private const string ReplayFolder = "InputHistoryReplays";
         private HistoryEvent lastReplayEvent;
+        private bool _onEnter = false;
 
         public InputHistoryModule()
         {
@@ -38,8 +39,7 @@ namespace Celeste.Mod.InputHistory
 
         private void Level_OnEnter(Session session, bool fromSaveData)
         {
-            Events.Clear();
-            lastReplayEvent = null;
+            _onEnter = true;
 
             if (Settings.EnableReplays)
             {
@@ -94,6 +94,9 @@ namespace Celeste.Mod.InputHistory
         private void UpdateList(On.Monocle.Engine.orig_Update orig, Engine self, GameTime gameTime)
         {
             orig(self, gameTime);
+
+            if (_onEnter) return;
+
             HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
             if (Events.Count == 0 || !e.Extends(Events.Last(), tas: false))
             {
@@ -138,6 +141,12 @@ namespace Celeste.Mod.InputHistory
 
         private void AddList(Level level, Player.IntroTypes playerIntro, bool isFromLoader)
         {
+            if (_onEnter)
+            {
+                _onEnter = false;
+                Events.Clear();
+                lastReplayEvent = null;
+            }
             level.Add(new InputHistoryListEntity());
 
             replayWriter?.WriteLineQueued("# " + level.Session.LevelData.Name);
