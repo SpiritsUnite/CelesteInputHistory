@@ -93,10 +93,10 @@ namespace Celeste.Mod.InputHistory
                     if (bindingIdx % 2 == 0) addJ = true;
                     else addK = true;
                 }
-                if (MenuCheck) addJ = addK = true;
-                if (addJ) ret += "J";
-                if (addJ && addK) ret += ",";
-                if (addK) ret += "K";
+                if (addJ) ret += "J,";
+                if (addK) ret += "K,";
+                if (MenuCheck) ret += "O,";
+                ret = ret.Trim(',');
             }
             else if (_button == Input.Dash) ret += "X";
             else if (_button == Input.CrouchDash) ret += "Z";
