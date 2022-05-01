@@ -70,8 +70,14 @@ namespace Celeste.Mod.InputHistory
 
         private void WriteOutLastEvent()
         {
-            if (lastReplayEvent == null || replayWriter == null || !Settings.EnableReplays)
+            if (lastReplayEvent == null || replayWriter == null)
                 return;
+
+            if (!Settings.EnableReplays)
+            {
+                replayWriter.CloseQueued();
+                replayWriter = null;
+            }
 
             replayWriter?.WriteLineQueued(lastReplayEvent.ToTasString());
         }
@@ -88,7 +94,6 @@ namespace Celeste.Mod.InputHistory
         private void UpdateList(On.Monocle.Engine.orig_Update orig, Engine self, GameTime gameTime)
         {
             orig(self, gameTime);
-
             HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
             if (Events.Count == 0 || !e.Extends(Events.Last(), tas: false))
             {
@@ -100,16 +105,24 @@ namespace Celeste.Mod.InputHistory
                 Events.Last().Frames++;
             }
 
-            HistoryEvent tasEvent = HistoryEvent.CreateTasHistoryEvent();
-            if (tasEvent.Extends(lastReplayEvent, tas: true))
+            if (Settings.EnableReplays)
             {
-                lastReplayEvent.Time += e.Time;
-                lastReplayEvent.Frames++;
+                HistoryEvent tasEvent = HistoryEvent.CreateTasHistoryEvent();
+                if (tasEvent.Extends(lastReplayEvent, tas: true))
+                {
+                    lastReplayEvent.Time += e.Time;
+                    lastReplayEvent.Frames++;
+                }
+                else
+                {
+                    WriteOutLastEvent();
+                    lastReplayEvent = tasEvent;
+                }
             }
             else
             {
+                // To flush the replay file if the player disables replays during a level.
                 WriteOutLastEvent();
-                lastReplayEvent = tasEvent;
             }
         }
 
