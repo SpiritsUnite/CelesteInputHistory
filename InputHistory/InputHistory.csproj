@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="MonoMod.Utils">
       <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
