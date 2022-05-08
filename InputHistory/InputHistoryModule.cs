@@ -44,9 +44,11 @@ namespace Celeste.Mod.InputHistory
             if (Settings.EnableReplays)
             {
                 Directory.CreateDirectory(Path.Combine(Everest.PathGame, REPLAY_FOLDER));
+                string mapName = session.MapData.Filename.Replace(Path.DirectorySeparatorChar, '_');
+                mapName = mapName.Replace(Path.AltDirectorySeparatorChar, '_');
                 _replayWriter = new QueuedStreamWriter(Path.Combine(
                     Everest.PathGame, REPLAY_FOLDER,
-                    DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss_") + session.MapData.Filename + ".tas"));
+                    DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss_") + mapName + ".tas"));
                 if (fromSaveData && session.RespawnPoint.HasValue)
                     _replayWriter.WriteLineQueued(String.Format("console load {0} {1} {2} 0 0",
                         session.Area.SID, session.RespawnPoint.Value.X, session.RespawnPoint.Value.Y));

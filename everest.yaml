@@ -1,5 +1,5 @@
 ﻿- Name: InputHistory
-  Version: 1.2.0
+  Version: 1.2.1
   DLL: InputHistory/bin/Debug/InputHistory.dll
   Dependencies:
     - Name: Everest
