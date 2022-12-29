@@ -44,7 +44,7 @@ namespace Celeste.Mod.InputHistory
             if (Settings.EnableReplays)
             {
                 Directory.CreateDirectory(Path.Combine(Everest.PathGame, REPLAY_FOLDER));
-                string mapName = session.MapData.Filename.Replace(Path.DirectorySeparatorChar, '_');
+                string mapName = session.Area.SID.Replace(Path.DirectorySeparatorChar, '_');
                 mapName = mapName.Replace(Path.AltDirectorySeparatorChar, '_');
                 _replayWriter = new QueuedStreamWriter(Path.Combine(
                     Everest.PathGame, REPLAY_FOLDER,
