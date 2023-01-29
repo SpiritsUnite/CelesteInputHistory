@@ -16,5 +16,9 @@ namespace Celeste.Mod.InputHistory
 
         [SettingSubText("Experimental! Won't start recording until next level load.")]
         public bool EnableReplays { get; set; } = false;
+
+        public ButtonBinding ToggleVisibility { get; set; }
+
+        public ButtonBinding ToggleVisibilityHold { get; set; }
     }
 }
