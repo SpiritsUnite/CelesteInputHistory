@@ -46,14 +46,31 @@ namespace Celeste.Mod.InputHistory
                 Directory.CreateDirectory(Path.Combine(Everest.PathGame, REPLAY_FOLDER));
                 string mapName = session.Area.SID.Replace(Path.DirectorySeparatorChar, '_');
                 mapName = mapName.Replace(Path.AltDirectorySeparatorChar, '_');
+
+                string loadCommand = "console ";
+                if (session.Area.Mode == AreaMode.Normal)
+                {
+                    loadCommand += "load";
+                }
+                else if (session.Area.Mode == AreaMode.BSide)
+                {
+                    loadCommand += "hard";
+                    mapName += "_B";
+                }
+                else if (session.Area.Mode == AreaMode.CSide)
+                {
+                    loadCommand += "rmx2";
+                    mapName += "_C";
+                }
+
                 _replayWriter = new QueuedStreamWriter(Path.Combine(
                     Everest.PathGame, REPLAY_FOLDER,
                     DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss_") + mapName + ".tas"));
                 if (fromSaveData && session.RespawnPoint.HasValue)
-                    _replayWriter.WriteLineQueued(String.Format("console load {0} {1} {2} 0 0",
+                    _replayWriter.WriteLineQueued(String.Format("{0} {1} {2} {3} 0 0", loadCommand,
                         session.Area.SID, session.RespawnPoint.Value.X, session.RespawnPoint.Value.Y));
                 else
-                    _replayWriter.WriteLineQueued("console load " + session.Area.SID);
+                    _replayWriter.WriteLineQueued(loadCommand + " " + session.Area.SID);
             }
         }
 
