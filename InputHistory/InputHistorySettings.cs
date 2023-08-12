@@ -10,6 +10,8 @@ namespace Celeste.Mod.InputHistory
     {
         public bool Visible { get; set; } = true;
 
+        public bool ShowFrameCount { get; set; } = true;
+
         public const int MAX_POSSIBLE_INPUTS_SHOWN = 30;
         [SettingRange(0, MAX_POSSIBLE_INPUTS_SHOWN)]
         public int MaxInputsShown { get; set; } = 25;

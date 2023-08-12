@@ -63,12 +63,15 @@ namespace Celeste.Mod.InputHistory
                 x = e.Render(x, y, fontSize);
             }
 
-            ActiveFont.DrawOutline(Frames.ToString(),
-                    position: new Vector2(x, y),
-                    justify: new Vector2(0f, 0f),
-                    scale: Vector2.One * scale,
-                    color: Color.White, stroke: 2f,
-                    strokeColor: Color.Black);
+            if (InputHistoryModule.Settings.ShowFrameCount)
+            {
+                ActiveFont.DrawOutline(Frames.ToString(),
+                        position: new Vector2(x, y),
+                        justify: new Vector2(0f, 0f),
+                        scale: Vector2.One * scale,
+                        color: Color.White, stroke: 2f,
+                        strokeColor: Color.Black);
+            }
             return y + fontSize;
         }
 
