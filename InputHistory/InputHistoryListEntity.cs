@@ -28,7 +28,7 @@ namespace Celeste.Mod.InputHistory
 
             if (!(settings.Visible ^ settings.ToggleVisibilityHold.Check)) return;
 
-            var y = 120f;
+            float y = settings.VerticalPosition;
             foreach (var e in InputHistoryModule.Events.Reverse().Take(InputHistoryModule.Settings.MaxInputsShown))
             {
                 y = e.Render(y);

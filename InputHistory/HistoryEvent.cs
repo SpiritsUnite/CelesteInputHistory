@@ -56,7 +56,7 @@ namespace Celeste.Mod.InputHistory
         {
             var scale = 0.5f;
             var fontSize = ActiveFont.LineHeight * scale;
-            var x = 10f;
+            float x = InputHistoryModule.Settings.HorizontalPosition;
 
             foreach (var e in _events)
             {
