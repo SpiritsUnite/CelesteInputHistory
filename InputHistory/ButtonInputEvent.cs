@@ -73,6 +73,7 @@ namespace Celeste.Mod.InputHistory
             else if (_button == Input.Pause) ret += "Pause";
             else if (_button == Input.QuickRestart) ret += "QuickRestart";
             else if (_button == Input.MenuJournal) ret += "Journal";
+            else if (_button == Input.Talk) ret += "Talk";
             else ret += "Unknown";
             ret += " " + Check.ToString();
             if (Pressed) ret += "P";
@@ -98,12 +99,13 @@ namespace Celeste.Mod.InputHistory
                 if (MenuCheck) ret += "O,";
                 ret = ret.Trim(',');
             }
-            else if (_button == Input.Dash) ret += "X";
+            else if (_button == Input.Dash) ret += "C";
             else if (_button == Input.CrouchDash) ret += "Z";
             else if (_button == Input.Grab) ret += "G";
             else if (_button == Input.Pause) ret += "S";
             else if (_button == Input.QuickRestart) ret += "Q";
             else if (_button == Input.MenuJournal) ret += "N";
+            else if (_button == Input.Talk) ret += "N";
             return ret;
         }
 

@@ -36,6 +36,7 @@ namespace Celeste.Mod.InputHistory
             events.Add(new ButtonInputEvent(Input.Pause, Microsoft.Xna.Framework.Input.Keys.S));
             events.Add(new ButtonInputEvent(Input.QuickRestart, Microsoft.Xna.Framework.Input.Keys.R));
             events.Add(new ButtonInputEvent(Input.MenuJournal, Microsoft.Xna.Framework.Input.Keys.N));
+            events.Add(new ButtonInputEvent(Input.Talk, Microsoft.Xna.Framework.Input.Keys.N));
             return new HistoryEvent(events);
         }
 
