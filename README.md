@@ -1,4 +1,4 @@
-# Celeste Input History (WIP)
+# Celeste Input History
 
 ![Example screenshot](screenshot.png)
 
