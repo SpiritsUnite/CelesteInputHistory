@@ -144,6 +144,11 @@ namespace Celeste.Mod.InputHistory
                     ret++;
             }
 
+            foreach (var mouseButton in button.Binding.Mouse)
+            {
+                if (MInput.Mouse.Check(mouseButton)) ret++;
+            }
+
             return ret;
         }
 
