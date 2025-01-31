@@ -34,25 +34,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Celeste">
-      <HintPath>..\..\..\Celeste.exe</HintPath>
+      <HintPath>..\..\..\legacyRef\Celeste.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="FNA">
-      <HintPath>..\..\..\FNA.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\FNA.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MMHOOK_Celeste">
-      <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\MMHOOK_Celeste.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\MonoMod.Utils.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="YamlDotNet">
-      <HintPath>..\..\..\YamlDotNet.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\YamlDotNet.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
