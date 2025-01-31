@@ -37,6 +37,7 @@ namespace Celeste.Mod.InputHistory
             events.Add(new ButtonInputEvent(Input.QuickRestart, Microsoft.Xna.Framework.Input.Keys.R));
             events.Add(new ButtonInputEvent(Input.MenuJournal, Microsoft.Xna.Framework.Input.Keys.N));
             events.Add(new ButtonInputEvent(Input.Talk, Microsoft.Xna.Framework.Input.Keys.N));
+            events.Add(new ButtonInputEvent(Input.MenuConfirm, Microsoft.Xna.Framework.Input.Keys.O));
             return new HistoryEvent(events);
         }
 
@@ -81,8 +82,10 @@ namespace Celeste.Mod.InputHistory
             if (other == null) return false;
 
             if (_events.Count() != other._events.Count()) return false;
+            // Extends has side effects, so the ToList() is important.
             return _events.Zip(other._events, Tuple.Create)
-                .All((es) => es.Item1.Extends(es.Item2, tas));
+                .Select((es) => es.Item1.Extends(es.Item2, tas))
+                .ToList().All(e => e);
         }
 
         public string ToTasString()

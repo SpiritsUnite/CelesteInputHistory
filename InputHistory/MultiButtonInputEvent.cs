@@ -40,8 +40,10 @@ namespace Celeste.Mod.InputHistory
             if (orig is MultiButtonInputEvent origEvent)
             {
                 if (_events.Count() != origEvent._events.Count()) return false;
+                // Extends has side effects, so the ToList() is important.
                 return _events.Zip(origEvent._events, Tuple.Create)
-                    .All((es) => es.Item1.Extends(es.Item2, tas));
+                    .Select((es) => es.Item1.Extends(es.Item2, tas))
+                    .ToList().All(e => e);
             }
             return false;
         }

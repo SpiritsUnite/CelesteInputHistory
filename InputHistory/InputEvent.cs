@@ -20,6 +20,8 @@ namespace Celeste.Mod.InputHistory
 
         /// <summary>
         /// Returns rether or not the current event is an extension of the previous event.
+        ///
+        /// This also may update the tas output of the event, so call it before ToTasString() (sorry).
         /// </summary>
         /// <param name="orig">The previous event.</param>
         /// <param name="tas"></param>
@@ -27,6 +29,8 @@ namespace Celeste.Mod.InputHistory
 
         /// <summary>
         /// Returns the current event in TAS format.
+        ///
+        /// You must call Extends() before this function if there was a prior event.
         /// </summary>
         string ToTasString();
     }

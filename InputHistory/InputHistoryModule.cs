@@ -117,7 +117,7 @@ namespace Celeste.Mod.InputHistory
             if (_onEnter) return;
 
             HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
-            if (Events.Count == 0 || !e.Extends(Events.Last(), tas: false))
+            if (!e.Extends(Events.LastOrDefault(), tas: false))
             {
                 EnqueueEvent(e);
             }

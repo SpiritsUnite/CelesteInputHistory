@@ -13,19 +13,20 @@ namespace Celeste.Mod.InputHistory
     public class ButtonInputEvent : InputEvent
     {
         public int Check { get; }
-        public bool MenuCheck { get; } = false;
+        public bool MenuPress { get; } = false;
         public bool Pressed { get; }
         private readonly VirtualButton _button;
-        private readonly List<int> _checkedBindingIds;
         public Microsoft.Xna.Framework.Input.Keys Key { get; }
+        // -1 = not pressed, 0/1 = alternating presses
+        private int _tasButtonIdx;
 
         public ButtonInputEvent(VirtualButton button, Microsoft.Xna.Framework.Input.Keys key)
         {
             _button = button;
             Key = key;
-            _checkedBindingIds = CheckCount(button);
-            Check = _checkedBindingIds.Count();
+            Check = CheckCount(button);
             Pressed = button.Binding.Pressed(button.GamepadIndex, button.Threshold);
+            _tasButtonIdx = (Check > 0) ? 0 : -1;
 
             if (Engine.Scene is Level level)
             {
@@ -34,8 +35,7 @@ namespace Celeste.Mod.InputHistory
                 if (level.Paused || DynamicData.For(level).Get<bool>("wasPaused"))
                 {
                     // Various menu button hacks
-                    if (button == Input.Jump) MenuCheck = Input.MenuConfirm.Check;
-                    if (button == Input.Dash) MenuCheck = Input.MenuCancel.Check;
+                    if (button == Input.Dash) MenuPress = Input.MenuCancel.Pressed;
                 }
             }
         }
@@ -56,7 +56,20 @@ namespace Celeste.Mod.InputHistory
         {
             if (orig is ButtonInputEvent origEvent)
             {
-                return !Pressed && Check == origEvent.Check && (!tas || MenuCheck == origEvent.MenuCheck);
+                if (tas)
+                {
+                    _tasButtonIdx = origEvent._tasButtonIdx;
+                    if (Pressed || MenuPress)
+                    {
+                        _tasButtonIdx = (_tasButtonIdx + 1) % 2;
+                    }
+                    else if (Check == 0)
+                    {
+                        _tasButtonIdx = -1;
+                    }
+                    return ToTasString() == origEvent.ToTasString();
+                }
+                else return !Pressed && Check == origEvent.Check;
             }
             return false;
         }
@@ -82,52 +95,55 @@ namespace Celeste.Mod.InputHistory
 
         public string ToTasString()
         {
-            if (Check == 0 && !MenuCheck) return "";
+            if (Check == 0 && !MenuPress) return "";
 
             var ret = "";
             if (_button == Input.Jump)
             {
-                bool addJ = false;
-                bool addK = false;
-                foreach (var bindingIdx in _checkedBindingIds)
-                {
-                    if (bindingIdx % 2 == 0) addJ = true;
-                    else addK = true;
-                }
-                if (addJ) ret += "J,";
-                if (addK) ret += "K,";
-                if (MenuCheck) ret += "O,";
-                ret = ret.Trim(',');
+                if (_tasButtonIdx == 0) ret += "J";
+                else if (_tasButtonIdx == 1) ret += "K";
             }
-            else if (_button == Input.Dash) ret += "C";
-            else if (_button == Input.CrouchDash) ret += "Z";
-            else if (_button == Input.Grab) ret += "G";
+            else if (_button == Input.Dash)
+            {
+                if (_tasButtonIdx == 0) ret += "C";
+                // This can be wrong because this is also talk bind,
+                // but there's no other way to double dash bind.
+                else if (_tasButtonIdx == 1) ret += "X";
+            }
+            else if (_button == Input.CrouchDash)
+            {
+                if (_tasButtonIdx == 0) ret += "Z";
+                else if (_tasButtonIdx == 1) ret += "V";
+            }
+            else if (_button == Input.Grab)
+            {
+                if (_tasButtonIdx == 0) ret += "G";
+                else if (_tasButtonIdx == 1) ret += "H";
+            }
             else if (_button == Input.Pause) ret += "S";
             else if (_button == Input.QuickRestart) ret += "Q";
             else if (_button == Input.MenuJournal) ret += "N";
             else if (_button == Input.Talk) ret += "N";
+            else if (_button == Input.MenuConfirm) ret += "O";
             return ret;
         }
 
-        private static List<int> CheckCount(VirtualButton button)
+        private static int CheckCount(VirtualButton button)
         {
-            var ret = new List<int>();
-            int idx = 0;
+            int ret = 0;
             foreach (var key in button.Binding.Keyboard)
             {
-                if (MInput.Keyboard.Check(key)) ret.Add(idx);
-                idx++;
+                if (MInput.Keyboard.Check(key)) ret++;
             }
             // Hack to deal with Pause and ESC being different.
-            if (button == Input.Pause && Input.ESC.Check) ret.Add(idx);
+            if (button == Input.Pause && Input.ESC.Check) ret++;
 
-            idx = 100;
             foreach (var padButton in button.Binding.Controller)
             {
                 if (MInput.GamePads[button.GamepadIndex].Check(padButton, button.Threshold))
-                    ret.Add(idx);
-                idx++;
+                    ret++;
             }
+
             return ret;
         }
 
