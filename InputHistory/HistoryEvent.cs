@@ -82,10 +82,10 @@ namespace Celeste.Mod.InputHistory
             if (other == null) return false;
 
             if (_events.Count() != other._events.Count()) return false;
-            // Extends has side effects, so the ToList() is important.
+            // Extends has side effects, so do it via Aggregate
+            // to ensure we call it on all elements.
             return _events.Zip(other._events, Tuple.Create)
-                .Select((es) => es.Item1.Extends(es.Item2, tas))
-                .ToList().All(e => e);
+                .Aggregate(true, (res, e) => e.Item1.Extends(e.Item2, tas) && res);
         }
 
         public string ToTasString()
