@@ -51,7 +51,6 @@ namespace Celeste.Mod.InputHistory
             Everest.Events.Level.OnEnter += Level_OnEnter;
             Everest.Events.Level.OnExit += Level_OnExit;
             Everest.Events.Player.OnDie += Player_OnDie;
-            Everest.Events.Player.OnSpawn += Player_OnSpawn;
             On.Monocle.Engine.Update += UpdateList;
         }
 
@@ -111,14 +110,6 @@ namespace Celeste.Mod.InputHistory
             _deathOverride = DeathOverrideState.FORCED;
         }
 
-        private void Player_OnSpawn(Player obj)
-        {
-            if (_deathOverride == DeathOverrideState.FORCED)
-            {
-                _deathOverride = DeathOverrideState.WAITING;
-            }
-        }
-
         private void WriteOutLastEvent()
         {
             if (_lastReplayEvent == null || _replayWriter == null)
@@ -147,6 +138,12 @@ namespace Celeste.Mod.InputHistory
             orig(self, gameTime);
 
             if (_onEnter) return;
+
+            if (_deathOverride == DeathOverrideState.FORCED &&
+                Engine.Scene.Tracker.GetEntity<Player>() is Player player && !player.Dead)
+            {
+                _deathOverride = DeathOverrideState.WAITING;
+            }
 
             HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
             if (_deathOverride == DeathOverrideState.WAITING && e.hasInput())
@@ -190,7 +187,6 @@ namespace Celeste.Mod.InputHistory
             Everest.Events.Level.OnEnter -= Level_OnEnter;
             Everest.Events.Level.OnExit -= Level_OnExit;
             Everest.Events.Player.OnDie -= Player_OnDie;
-            Everest.Events.Player.OnSpawn -= Player_OnSpawn;
             On.Monocle.Engine.Update -= UpdateList;
             _replayWriter?.CloseQueued();
             _replayWriter = null;
