@@ -32,7 +32,7 @@ namespace Celeste.Mod.InputHistory
         private static DeathOverrideState _deathOverride = DeathOverrideState.INACTIVE;
         public static DeathOverrideState DeathOverride
         {
-            get => Settings.ShowOnDeath ? _deathOverride : DeathOverrideState.INACTIVE;
+            get => Settings.TemporarilyShowOnDeath ? _deathOverride : DeathOverrideState.INACTIVE;
         }
 
         private QueuedStreamWriter _replayWriter;

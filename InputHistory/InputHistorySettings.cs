@@ -12,7 +12,7 @@ namespace Celeste.Mod.InputHistory
 
         public bool ShowFrameCount { get; set; } = true;
 
-        public bool ShowOnDeath { get; set; } = false;
+        public bool TemporarilyShowOnDeath { get; set; } = false;
 
         public const int MAX_POSSIBLE_INPUTS_SHOWN = 40;
         [SettingRange(0, MAX_POSSIBLE_INPUTS_SHOWN)]
