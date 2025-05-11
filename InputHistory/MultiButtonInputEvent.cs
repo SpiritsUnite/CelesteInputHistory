@@ -58,5 +58,10 @@ namespace Celeste.Mod.InputHistory
             }
             return ret.Trim(',');
         }
+
+        public bool hasInput()
+        {
+            return _events.Any(e => e.hasInput());
+        }
     }
 }

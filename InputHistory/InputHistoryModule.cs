@@ -19,6 +19,23 @@ namespace Celeste.Mod.InputHistory
         public static InputHistorySettings Settings => (InputHistorySettings)Instance._Settings;
         public static Queue<HistoryEvent> Events = new Queue<HistoryEvent>();
 
+        public enum DeathOverrideState
+        {
+            // Override is off in normal play or forced off by setting.
+            INACTIVE,
+            // Between death and spawn we keep the list shown even if inputs are pressed.
+            FORCED,
+            // After spawn, we turn this off on first input.
+            WAITING
+        }
+
+        private static DeathOverrideState _deathOverride = DeathOverrideState.INACTIVE;
+        public static DeathOverrideState DeathOverride
+        {
+            get => Settings.ShowOnDeath ? _deathOverride : DeathOverrideState.INACTIVE;
+            private set => _deathOverride = value;
+        }
+
         private QueuedStreamWriter _replayWriter;
         private const string REPLAY_FOLDER = "InputHistoryReplays";
         private HistoryEvent _lastReplayEvent;
@@ -34,6 +51,8 @@ namespace Celeste.Mod.InputHistory
             Everest.Events.Level.OnLoadLevel += AddList;
             Everest.Events.Level.OnEnter += Level_OnEnter;
             Everest.Events.Level.OnExit += Level_OnExit;
+            Everest.Events.Player.OnDie += Player_OnDie;
+            Everest.Events.Player.OnSpawn += Player_OnSpawn;
             On.Monocle.Engine.Update += UpdateList;
         }
 
@@ -79,12 +98,26 @@ namespace Celeste.Mod.InputHistory
             WriteOutLastEvent();
             Events.Clear();
             _lastReplayEvent = null;
+            DeathOverride = DeathOverrideState.INACTIVE;
 
             if (mode == LevelExit.Mode.Restart || mode == LevelExit.Mode.GoldenBerryRestart)
                 return;
 
             _replayWriter?.CloseQueued();
             _replayWriter = null;
+        }
+
+        private void Player_OnDie(Player obj)
+        {
+            DeathOverride = DeathOverrideState.FORCED;
+        }
+
+        private void Player_OnSpawn(Player obj)
+        {
+            if (DeathOverride == DeathOverrideState.FORCED)
+            {
+                DeathOverride = DeathOverrideState.WAITING;
+            }
         }
 
         private void WriteOutLastEvent()
@@ -117,6 +150,10 @@ namespace Celeste.Mod.InputHistory
             if (_onEnter) return;
 
             HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
+            if (DeathOverride == DeathOverrideState.WAITING && e.hasInput())
+            {
+                DeathOverride = DeathOverrideState.INACTIVE;
+            }
             if (!e.Extends(Events.LastOrDefault(), tas: false))
             {
                 EnqueueEvent(e);
@@ -153,6 +190,8 @@ namespace Celeste.Mod.InputHistory
             Everest.Events.Level.OnLoadLevel -= AddList;
             Everest.Events.Level.OnEnter -= Level_OnEnter;
             Everest.Events.Level.OnExit -= Level_OnExit;
+            Everest.Events.Player.OnDie -= Player_OnDie;
+            Everest.Events.Player.OnSpawn -= Player_OnSpawn;
             On.Monocle.Engine.Update -= UpdateList;
             _replayWriter?.CloseQueued();
             _replayWriter = null;

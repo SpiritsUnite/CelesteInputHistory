@@ -19,6 +19,9 @@ namespace Celeste.Mod.InputHistory
 
         public override void Render()
         {
+            bool forceShown =
+                InputHistoryModule.DeathOverride != InputHistoryModule.DeathOverrideState.INACTIVE;
+
             var settings = InputHistoryModule.Settings;
             if (settings.ToggleVisibility.Pressed)
             {
@@ -26,12 +29,12 @@ namespace Celeste.Mod.InputHistory
                 settings.Visible = !settings.Visible;
             }
 
-            if (!(settings.Visible ^ settings.ToggleVisibilityHold.Check)) return;
+            if (!(settings.Visible ^ settings.ToggleVisibilityHold.Check) && !forceShown) return;
 
             float y = settings.VerticalPosition;
             foreach (var e in InputHistoryModule.Events.Reverse().Take(InputHistoryModule.Settings.MaxInputsShown))
             {
-                y = e.Render(y);
+                y = e.Render(y, InputHistoryModule.Settings.ShowFrameCount || forceShown);
             }
         }
     }

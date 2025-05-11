@@ -33,5 +33,10 @@ namespace Celeste.Mod.InputHistory
         /// You must call Extends() before this function if there was a prior event.
         /// </summary>
         string ToTasString();
+
+        /// <summary>
+        /// Returns whether or not the current event records an input or not.
+        /// </summary>
+        bool hasInput();
     }
 }

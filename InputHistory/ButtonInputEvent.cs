@@ -152,5 +152,9 @@ namespace Celeste.Mod.InputHistory
             return ret;
         }
 
+        public bool hasInput()
+        {
+            return Check != 0;
+        }
     }
 }

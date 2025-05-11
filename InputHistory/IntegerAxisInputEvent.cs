@@ -68,5 +68,10 @@ namespace Celeste.Mod.InputHistory
             if (Y == 1 || MenuDown) ret += "D,";
             return ret.Trim(',');
         }
+
+        public bool hasInput()
+        {
+            return X != 0 || Y != 0;
+        }
     }
 }

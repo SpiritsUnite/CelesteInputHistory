@@ -54,7 +54,7 @@ namespace Celeste.Mod.InputHistory
             return events;
         }
 
-        public float Render(float y)
+        public float Render(float y, bool showFrameCount)
         {
             var scale = 0.5f;
             var fontSize = ActiveFont.LineHeight * scale;
@@ -65,7 +65,7 @@ namespace Celeste.Mod.InputHistory
                 x = e.Render(x, y, fontSize);
             }
 
-            if (InputHistoryModule.Settings.ShowFrameCount)
+            if (showFrameCount)
             {
                 ActiveFont.DrawOutline(Frames.ToString(),
                         position: new Vector2(x, y),
@@ -97,6 +97,11 @@ namespace Celeste.Mod.InputHistory
                 if (s != "") ret += "," + s;
             }
             return ret;
+        }
+
+        public bool hasInput()
+        {
+            return _events.Any(e => e.hasInput());
         }
     }
 }
