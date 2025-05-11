@@ -33,7 +33,6 @@ namespace Celeste.Mod.InputHistory
         public static DeathOverrideState DeathOverride
         {
             get => Settings.ShowOnDeath ? _deathOverride : DeathOverrideState.INACTIVE;
-            private set => _deathOverride = value;
         }
 
         private QueuedStreamWriter _replayWriter;
@@ -98,7 +97,7 @@ namespace Celeste.Mod.InputHistory
             WriteOutLastEvent();
             Events.Clear();
             _lastReplayEvent = null;
-            DeathOverride = DeathOverrideState.INACTIVE;
+            _deathOverride = DeathOverrideState.INACTIVE;
 
             if (mode == LevelExit.Mode.Restart || mode == LevelExit.Mode.GoldenBerryRestart)
                 return;
@@ -109,14 +108,14 @@ namespace Celeste.Mod.InputHistory
 
         private void Player_OnDie(Player obj)
         {
-            DeathOverride = DeathOverrideState.FORCED;
+            _deathOverride = DeathOverrideState.FORCED;
         }
 
         private void Player_OnSpawn(Player obj)
         {
-            if (DeathOverride == DeathOverrideState.FORCED)
+            if (_deathOverride == DeathOverrideState.FORCED)
             {
-                DeathOverride = DeathOverrideState.WAITING;
+                _deathOverride = DeathOverrideState.WAITING;
             }
         }
 
@@ -150,9 +149,9 @@ namespace Celeste.Mod.InputHistory
             if (_onEnter) return;
 
             HistoryEvent e = HistoryEvent.CreateDefaultHistoryEvent();
-            if (DeathOverride == DeathOverrideState.WAITING && e.hasInput())
+            if (_deathOverride == DeathOverrideState.WAITING && e.hasInput())
             {
-                DeathOverride = DeathOverrideState.INACTIVE;
+                _deathOverride = DeathOverrideState.INACTIVE;
             }
             if (!e.Extends(Events.LastOrDefault(), tas: false))
             {
