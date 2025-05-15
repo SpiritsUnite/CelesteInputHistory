@@ -14,7 +14,7 @@ namespace Celeste.Mod.InputHistory
     {
         public InputHistoryListEntity()
         {
-            Tag = Tags.HUD;
+            Tag = Tags.HUD | Tags.Global;
         }
 
         public override void Render()

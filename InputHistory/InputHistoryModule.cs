@@ -200,7 +200,10 @@ namespace Celeste.Mod.InputHistory
                 Events.Clear();
                 _lastReplayEvent = null;
             }
-            level.Add(new InputHistoryListEntity());
+            if (isFromLoader)
+            {
+                level.Add(new InputHistoryListEntity());
+            }
 
             _replayWriter?.WriteLineQueued("# " + level.Session.LevelData.Name);
             _replayWriter?.FlushQueued();
