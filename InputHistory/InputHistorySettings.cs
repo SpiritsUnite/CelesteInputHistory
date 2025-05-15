@@ -26,6 +26,9 @@ namespace Celeste.Mod.InputHistory
         [SettingSubText("Default value: 120")]
         public int VerticalPosition { get; set; } = 120;
 
+        [SettingRange(0, 100, true)]
+        public int Opacity { get; set; } = 100;
+
         [SettingSubText("Experimental! Won't start recording until next level load.")]
         public bool EnableReplays { get; set; } = false;
 

@@ -71,7 +71,7 @@ namespace Celeste.Mod.InputHistory
                         position: new Vector2(x, y),
                         justify: new Vector2(0f, 0f),
                         scale: Vector2.One * scale,
-                        color: Color.White, stroke: 2f,
+                        color: InputHistoryModule.GetColor(), stroke: 2f,
                         strokeColor: Color.Black);
             }
             return y + fontSize;

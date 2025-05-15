@@ -40,7 +40,7 @@ namespace Celeste.Mod.InputHistory
         public float Render(float x, float y, float fontSize)
         {
             var icon = Input.GuiDirection(new Vector2(X, Y));
-            icon?.Draw(new Vector2(x, y), Vector2.Zero, Color.White, fontSize / icon.Height);
+            icon?.Draw(new Vector2(x, y), Vector2.Zero, InputHistoryModule.GetColor(), fontSize / icon.Height);
             var rightDir = Input.GuiDirection(new Vector2(1, 0));
             return x + rightDir.Width * fontSize / rightDir.Height;
         }

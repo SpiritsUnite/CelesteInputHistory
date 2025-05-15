@@ -45,6 +45,11 @@ namespace Celeste.Mod.InputHistory
             Instance = this;
         }
 
+        public static Color GetColor()
+        {
+            return Color.White * (Settings.Opacity / 100.0f);
+        }
+
         public override void Load()
         {
             Everest.Events.Level.OnLoadLevel += AddList;

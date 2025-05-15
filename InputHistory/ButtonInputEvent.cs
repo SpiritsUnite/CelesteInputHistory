@@ -48,7 +48,7 @@ namespace Celeste.Mod.InputHistory
             {
                 var shift = new Vector2(icon.Width * fontSize / icon.Height * (i / (5f + Check - 1)),
                     fontSize * ((Check - i - 1) / (5f + Check - 1)));
-                icon.Draw(new Vector2(x, y) + shift, Vector2.Zero, Color.White, fontSize / icon.Height * multiScale);
+                icon.Draw(new Vector2(x, y) + shift, Vector2.Zero, InputHistoryModule.GetColor(), fontSize / icon.Height * multiScale);
             }
             return x + icon.Width * fontSize / icon.Height;
         }
